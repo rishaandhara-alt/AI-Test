@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Quiz Maker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">AI-Powered Study Tool</p>
+          <h1>Build a quiz, answer one question at a time, and learn from every result.</h1>
+          <p class="hero-copy">Generate quizzes with your API key, grade each answer with AI, reveal the correct answer after every turn, and ask follow-up questions before moving on.</p>
+        </div>
+        <div class="hero-badge">
+          <span>Available Models</span>
+          <strong>llama3.1-8b</strong>
+          <strong>qwen-3-235b-a22b-instruct-2507</strong>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="card setup-card" id="setup-card">
+          <div class="section-heading">
+            <h2>Quiz Setup</h2>
+            <p>Choose your topic, number of questions, timing, and AI model.</p>
+          </div>
+
+          <form id="setup-form" class="setup-form">
+            <label>
+              Topic or prompt
+              <textarea id="topic" rows="4" placeholder="Example: Make a 12-question geography quiz about European capitals." required></textarea>
+            </label>
+
+            <div class="grid two-up">
+              <label>
+                AI model
+                <select id="model">
+                  <option value="llama3.1-8b">llama3.1-8b</option>
+                  <option value="qwen-3-235b-a22b-instruct-2507">qwen-3-235b-a22b-instruct-2507</option>
+                </select>
+              </label>
+
+              <label>
+                Number of questions
+                <input id="question-count" type="number" min="1" max="50" value="5" required />
+              </label>
+            </div>
+
+            <div class="grid three-up">
+              <label>
+                Difficulty
+                <select id="difficulty">
+                  <option value="mixed">Mixed</option>
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </label>
+
+              <label>
+                Question type
+                <select id="question-style">
+                  <option value="mixed">Mixed</option>
+                  <option value="multiple choice">Multiple choice</option>
+                  <option value="short answer">Short answer</option>
+                </select>
+              </label>
+
+              <label>
+                Timer per question (seconds)
+                <input id="timer-seconds" type="number" min="5" max="600" value="30" />
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <label class="checkbox">
+                <input id="timer-enabled" type="checkbox" />
+                <span>Enable timer</span>
+              </label>
+
+              <label class="checkbox">
+                <input id="show-explanations" type="checkbox" checked />
+                <span>Include answer explanations</span>
+              </label>
+            </div>
+
+            <label>
+              API key
+              <input id="api-key" type="password" autocomplete="off" spellcheck="false" value="csk-ykeyckk8k8hmke6v849x6eevytecnc3r95vyeh98kvt5588e" required />
+            </label>
+
+            <div class="button-row">
+              <button type="submit" class="primary">Generate Quiz</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card hidden" id="quiz-card">
+          <div class="stats-bar">
+            <div class="stat"><span>Total Questions</span><strong id="total-questions-stat">0</strong></div>
+            <div class="stat"><span>Done</span><strong id="done-stat">0</strong></div>
+            <div class="stat"><span>Correct / Done</span><strong id="score-stat">0 / 0</strong></div>
+            <div class="stat hidden" id="timer-stat-wrap"><span>Time Left</span><strong id="timer-stat">0s</strong></div>
+          </div>
+
+          <div class="section-heading">
+            <h2 id="question-heading">Question 1</h2>
+            <p id="question-meta">One question at a time, with grading and the correct answer after.</p>
+          </div>
+
+          <div id="question-panel" class="question-panel"></div>
+
+          <form id="answer-form" class="answer-form">
+            <label>
+              Your answer
+              <textarea id="answer-input" rows="5" placeholder="Type your answer here" required></textarea>
+            </label>
+
+            <div class="button-row">
+              <button type="submit" class="primary" id="submit-answer-btn">Submit Answer</button>
+              <button type="button" class="secondary hidden" id="next-question-btn">Next Question</button>
+            </div>
+          </form>
+
+          <section id="result-panel" class="result-panel hidden"></section>
+
+          <section id="followup-panel" class="followup-panel hidden">
+            <div class="section-heading compact">
+              <h3>Ask Follow-Up Questions</h3>
+              <p>Use the same model to understand the result before moving on.</p>
+            </div>
+
+            <div id="followup-messages" class="followup-messages"></div>
+
+            <form id="followup-form" class="followup-form">
+              <input id="followup-input" type="text" placeholder="Why was that wrong? Can you explain the right answer?" required />
+              <button type="submit" class="secondary">Ask AI</button>
+            </form>
+          </section>
+        </section>
+
+        <section class="card hidden" id="summary-card">
+          <div class="section-heading">
+            <h2>Quiz Complete</h2>
+            <p id="summary-copy">Here is your final score.</p>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-stat"><span>Correct Answers</span><strong id="summary-correct">0</strong></div>
+            <div class="summary-stat"><span>Total Answered</span><strong id="summary-total">0</strong></div>
+            <div class="summary-stat accent"><span>Final Percentage</span><strong id="summary-percent">0%</strong></div>
+          </div>
+
+          <div class="button-row">
+            <button id="restart-btn" class="primary">Make Another Quiz</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
