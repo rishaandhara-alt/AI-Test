@@ -12,15 +12,21 @@
   <body>
     <div class="page-shell">
       <header class="hero">
-        <div>
-          <p class="eyebrow">AI-Powered Study Tool</p>
-          <h1>Build a quiz, answer one question at a time, and learn from every result.</h1>
-          <p class="hero-copy">Generate quizzes with your API key, grade each answer with AI, reveal the correct answer after every turn, and ask follow-up questions before moving on.</p>
+        <div class="hero-copy-wrap">
+          <p class="eyebrow">Adaptive Quiz Studio</p>
+          <h1>Ask AI to build the test, then beat it one question at a time.</h1>
+          <p class="hero-copy">Generate a custom quiz, track your score live, reveal the right answer after every submission, and keep chatting with the model until the concept clicks.</p>
+          <div class="hero-pills">
+            <span>One-question flow</span>
+            <span>Timer controls</span>
+            <span>Instant grading</span>
+          </div>
         </div>
         <div class="hero-badge">
-          <span>Available Models</span>
+          <span>Model Deck</span>
           <strong>llama3.1-8b</strong>
           <strong>qwen-3-235b-a22b-instruct-2507</strong>
+          <p>Embedded local key mode enabled</p>
         </div>
       </header>
 
@@ -89,11 +95,6 @@
                 <span>Include answer explanations</span>
               </label>
             </div>
-
-            <label>
-              API key
-              <input id="api-key" type="password" autocomplete="off" spellcheck="false" value="csk-ykeyckk8k8hmke6v849x6eevytecnc3r95vyeh98kvt5588e" required />
-            </label>
 
             <div class="button-row">
               <button type="submit" class="primary">Generate Quiz</button>

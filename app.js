@@ -1,4 +1,5 @@
 const API_URL = "https://api.cerebras.ai/v1/chat/completions";
+const EMBEDDED_API_KEY = "csk-ykeyckk8k8hmke6v849x6eevytecnc3r95vyeh98kvt5588e";
 
 const state = {
   config: null,
@@ -25,7 +26,6 @@ const els = {
   timerEnabled: document.querySelector("#timer-enabled"),
   timerSeconds: document.querySelector("#timer-seconds"),
   showExplanations: document.querySelector("#show-explanations"),
-  apiKey: document.querySelector("#api-key"),
   totalQuestionsStat: document.querySelector("#total-questions-stat"),
   doneStat: document.querySelector("#done-stat"),
   scoreStat: document.querySelector("#score-stat"),
@@ -66,7 +66,7 @@ function getConfigFromForm() {
     timerEnabled: els.timerEnabled.checked,
     timerSeconds: Number(els.timerSeconds.value),
     showExplanations: els.showExplanations.checked,
-    apiKey: els.apiKey.value.trim(),
+    apiKey: EMBEDDED_API_KEY,
   };
 }
 
@@ -74,8 +74,8 @@ async function handleGenerateQuiz(event) {
   event.preventDefault();
   const config = getConfigFromForm();
 
-  if (!config.topic || !config.apiKey) {
-    window.alert("Please enter a topic and API key.");
+  if (!config.topic) {
+    window.alert("Please enter a topic.");
     return;
   }
 
@@ -178,14 +178,13 @@ function renderCurrentQuestion() {
     ? "Answer the current question to see grading and the correct answer."
     : "Type your answer, then the AI will grade it.";
 
-  const choicesMarkup =
-    current.type === "multiple_choice" && current.choices.length
-      ? `
+  const choicesMarkup = current.type === "multiple_choice" && current.choices.length
+    ? `
         <div class="choice-list">
           ${current.choices.map((choice, idx) => `<div class="choice-item"><strong>${String.fromCharCode(65 + idx)}.</strong> ${escapeHtml(choice)}</div>`).join("")}
         </div>
       `
-      : "";
+    : "";
 
   els.questionPanel.innerHTML = `
     <h3>${escapeHtml(current.question)}</h3>
