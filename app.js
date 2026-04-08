@@ -11,6 +11,7 @@ const state = {
   followupMessages: [],
   timerId: null,
   secondsLeft: 0,
+  selectedChoice: "",
 };
 
 const els = {
@@ -162,6 +163,7 @@ function renderCurrentQuestion() {
   const current = state.quiz[state.currentIndex];
   state.activeResult = null;
   state.followupMessages = [];
+  state.selectedChoice = "";
 
   els.answerInput.value = "";
   els.answerInput.disabled = false;
@@ -180,8 +182,23 @@ function renderCurrentQuestion() {
 
   const choicesMarkup = current.type === "multiple_choice" && current.choices.length
     ? `
-        <div class="choice-list">
-          ${current.choices.map((choice, idx) => `<div class="choice-item"><strong>${String.fromCharCode(65 + idx)}.</strong> ${escapeHtml(choice)}</div>`).join("")}
+        <div class="choice-list" role="radiogroup" aria-label="Answer choices">
+          ${current.choices
+            .map(
+              (choice, idx) => `
+                <label class="choice-item">
+                  <input
+                    type="radio"
+                    name="quiz-choice"
+                    value="${escapeHtml(choice)}"
+                    ${state.selectedChoice === choice ? "checked" : ""}
+                  />
+                  <span class="choice-letter">${String.fromCharCode(65 + idx)}.</span>
+                  <span class="choice-text">${escapeHtml(choice)}</span>
+                </label>
+              `
+            )
+            .join("")}
         </div>
       `
     : "";
@@ -190,6 +207,18 @@ function renderCurrentQuestion() {
     <h3>${escapeHtml(current.question)}</h3>
     ${choicesMarkup}
   `;
+
+  const radio = els.questionPanel.querySelector('input[name="quiz-choice"]:checked');
+  if (radio) {
+    state.selectedChoice = radio.value;
+  }
+
+  els.questionPanel.querySelectorAll('input[name="quiz-choice"]').forEach((input) => {
+    input.addEventListener("change", (event) => {
+      state.selectedChoice = event.target.value;
+      els.answerInput.value = state.selectedChoice;
+    });
+  });
 
   renderStats();
   startTimerIfNeeded();
@@ -237,7 +266,10 @@ function clearTimer() {
 
 async function handleSubmitAnswer(event) {
   event.preventDefault();
-  const answer = els.answerInput.value.trim();
+  const current = state.quiz[state.currentIndex];
+  const answer = current?.type === "multiple_choice"
+    ? (state.selectedChoice || els.answerInput.value).trim()
+    : els.answerInput.value.trim();
   if (!answer) {
     window.alert("Please enter an answer.");
     return;
@@ -261,6 +293,9 @@ async function gradeCurrentAnswer(answer, timedOut) {
     renderResult(answer, result, timedOut);
     renderStats();
     els.answerInput.disabled = true;
+    els.questionPanel.querySelectorAll('input[name="quiz-choice"]').forEach((input) => {
+      input.disabled = true;
+    });
     els.submitAnswerBtn.classList.add("hidden");
     els.nextQuestionBtn.classList.remove("hidden");
     els.followupPanel.classList.remove("hidden");
