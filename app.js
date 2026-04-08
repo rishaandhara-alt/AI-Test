@@ -177,8 +177,10 @@ function renderCurrentQuestion() {
 
   els.questionHeading.textContent = `Question ${state.currentIndex + 1}`;
   els.questionMeta.textContent = current.type === "multiple_choice"
-    ? "Answer the current question to see grading and the correct answer."
+    ? "Pick one answer below, then submit it for grading."
     : "Type your answer, then the AI will grade it.";
+
+  els.answerForm.classList.toggle("compact-answer", current.type === "multiple_choice");
 
   const choicesMarkup = current.type === "multiple_choice" && current.choices.length
     ? `
